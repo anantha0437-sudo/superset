@@ -243,6 +243,8 @@ COPY superset-core superset-core
 
 RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
     /app/docker/pip-install.sh --requires-build-essential -r requirements/base.txt
+
+RUN uv pip install clickhouse-connect  
 # Install the superset package
 RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
     uv pip install -e .
@@ -271,12 +273,17 @@ COPY superset-extensions-cli superset-extensions-cli
 # Install Python dependencies using docker/pip-install.sh
 RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
     /app/docker/pip-install.sh --requires-build-essential -r requirements/development.txt
+
+RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
+    uv pip install clickhouse-connect  
+
 # Install the superset package
 RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
     uv pip install -e .
 
 RUN uv pip install .[postgres]
 RUN python -m compileall /app/superset
+
 
 USER superset
 

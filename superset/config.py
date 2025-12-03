@@ -750,11 +750,11 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = []
 THEME_DEFAULT: Theme = {
     "token": {
         # Brand
-        "brandLogoAlt": "Apache Superset",
+        "brandLogoAlt": "Time Champ",
         "brandLogoUrl": APP_ICON,
         "brandLogoMargin": "18px 0",
         "brandLogoHref": "/",
-        "brandLogoHeight": "24px",
+        "brandLogoHeight": "34px",
         # Spinner
         "brandSpinnerUrl": None,
         "brandSpinnerSvg": None,

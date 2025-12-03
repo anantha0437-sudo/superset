@@ -27,13 +27,18 @@ from flask_wtf.csrf import generate_csrf
 from marshmallow import EXCLUDE, fields, post_load, Schema, ValidationError
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import joinedload
+from flask_login import login_user
+from superset import db, security_manager
+from flask_appbuilder.security.manager import AUTH_DB
+import requests
+from datetime import datetime
 
 from superset.commands.dashboard.embedded.exceptions import (
     EmbeddedDashboardNotFoundError,
 )
 from superset.commands.exceptions import ForbiddenError
 from superset.exceptions import SupersetGenericErrorException
-from superset.extensions import db, event_logger
+from superset.extensions import db, event_logger,csrf
 from superset.security.guest_token import GuestTokenResourceType
 from superset.views.base_api import (
     BaseSupersetApi,
@@ -195,6 +200,160 @@ class SecurityRestApi(BaseSupersetApi):
         except ValidationError as error:
             return self.response_400(message=error.messages)
 
+    
+    @expose("/local-login/", methods=("POST",))
+    @event_logger.log_this
+    def timechamp_login(self):
+        try:
+            data = request.get_json() or {}
+
+            logger.info(f"TimeChamp Login Payload: {data}")
+
+            # Extract required fields
+            token = data.get("token")
+            tc_user_id = data.get("tcUserId")
+            tc_company_id = data.get("tcCompanyId")
+            first_name = data.get("firstName")
+            last_name = data.get("lastName", "")
+            username = data.get("userName")
+            email = data.get("userEmail")
+            role_name = data.get("role")
+
+            # Validate base required fields
+            missing_fields = [
+                field for field, value in {
+                    "token": token,
+                    "tcUserId": tc_user_id,
+                    "firstName": first_name,
+                    "role": role_name,
+                }.items() if not value
+            ]
+
+            if missing_fields:
+                return self.response(
+                    400,
+                    message=f"Missing required fields: {', '.join(missing_fields)}"
+                )
+
+            # ---------------------------------------------------------
+            # Call TimeChamp API for validation
+            # ---------------------------------------------------------
+
+            # api_url = request.host_url.rstrip("/") + "/Superset/Supersetapi/validateSupersetAccess"
+            api_url = f"https://btrak4350-development.snovasys.com/backend/superset/supersetapi/validateSupersetAccess"
+
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+
+            logger.info(f"Calling TimeChamp API: {api_url}")
+
+            try:
+                ext_response = requests.post(api_url, headers=headers, timeout=180)
+            except Exception as api_ex:
+                logger.error(f"Error contacting TimeChamp API: {api_ex}")
+                return self.response(500, message="Unable to reach TimeChamp")
+
+            if ext_response.status_code != 200:
+                logger.error(f"TimeChamp API failed: {ext_response.text}")
+                return self.response(403, message="TimeChamp authentication failed")
+
+            # parse JSON
+            try:
+                api_data = ext_response.json()
+            except ValueError:
+                logger.error(f"Invalid JSON from TimeChamp API: {ext_response.text}")
+                return self.response(400, message="Invalid data from TimeChamp")
+
+            success = api_data.get("success")
+            accessible = api_data.get("data").get("isAccessible", False)
+
+            if not success or not accessible:
+                logger.error(f"TimeChamp denied access: success={success}, accessible={accessible}")
+                return self.response(403, message="User not allowed")
+
+            logger.info("TimeChamp authentication passed.")
+
+            # ---------------------------------------------------------
+            # Map TimeChamp role → Superset role
+            # ---------------------------------------------------------
+            ROLE_MAPPING = {
+                "admin": "Admin",
+                "super admin": "Admin",
+                "manager": "Alpha",
+                "employee": "Gamma",
+            }
+
+            target_role = ROLE_MAPPING.get(role_name.lower(), "Gamma")
+            role = security_manager.find_role(target_role)
+
+            if not role:
+                logger.warning(f"Role {target_role} not found. Using Gamma.")
+                role = security_manager.find_role("Gamma")
+
+            # ---------------------------------------------------------
+            # Create or update user
+            # ---------------------------------------------------------
+            user = security_manager.find_user(tc_user_id=tc_user_id)
+
+            if user:
+                user.first_name = first_name
+                user.last_name = last_name
+                user.username = username
+                user.email = email
+                user.tc_company_id = tc_company_id
+                user.roles = [role]
+                user.active = True
+                db.session.commit()
+
+                logger.info(f"Updated user: {tc_user_id}")
+
+            else:
+                user = security_manager.add_user(
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    role=role,
+                    password="external_auth",
+                    tc_user_id=tc_user_id,
+                    tc_company_id=tc_company_id,
+                )
+                logger.info(f"Created new user: {tc_user_id}")
+
+            # ---------------------------------------------------------
+            # Log user in
+            # ---------------------------------------------------------
+            login_user(user, remember=True)
+
+            # Update login stats
+            user.login_count = (user.login_count or 0) + 1
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+
+           
+
+            logger.info(f"User logged in: {tc_user_id}")
+
+            return self.response(
+                200,
+                message="Logged in successfully",
+                success=True,
+                user_id=tc_user_id,
+                first_name=first_name,
+            )
+
+        except Exception as ex:
+            db.session.rollback()
+            logger.exception(f"TimeChamp login error: {ex}")
+            return self.response(500, message="Internal login error")
+
+
+csrf.exempt(SecurityRestApi.timechamp_login)
+
+
+
 
 class RoleRestAPI(BaseSupersetApi):
     """
@@ -341,7 +500,9 @@ class RoleRestAPI(BaseSupersetApi):
             return self.response_403(message=str(e))
         except Exception as e:
             return self.response_500(message=str(e))
-
+        
+       # ✅ Custom external login endpoint (TimeChamp integration)
+    
 
 class UserRegistrationsRestAPI(BaseSupersetModelRestApi):
     """
@@ -360,3 +521,7 @@ class UserRegistrationsRestAPI(BaseSupersetModelRestApi):
         "registration_date",
         "registration_hash",
     ]
+
+
+
+
