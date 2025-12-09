@@ -238,16 +238,17 @@ class SecurityRestApi(BaseSupersetApi):
             # ---------------------------------------------------------
             # Call TimeChamp API for validation
             # ---------------------------------------------------------
+            api_url = request.host_url.rstrip("/") + "/Superset/Supersetapi/validateSupersetAccess"
+            # api_url = f"https://btrak4350-development.snovasys.com/backend/superset/supersetapi/validateSupersetAccess"
 
-            # api_url = request.host_url.rstrip("/") + "/Superset/Supersetapi/validateSupersetAccess"
-            api_url = f"https://btrak4350-development.snovasys.com/backend/superset/supersetapi/validateSupersetAccess"
+
 
             headers = {
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json"
             }
 
-            logger.info(f"Calling TimeChamp API: {api_url}")
+            logger.info(f"Calling TimeChamp API: {api_url} to validate superset access")
 
             try:
                 ext_response = requests.post(api_url, headers=headers, timeout=180)
@@ -284,6 +285,8 @@ class SecurityRestApi(BaseSupersetApi):
                 "manager": "Alpha",
                 "employee": "Gamma",
             }
+
+            #dynamic role mapping has to be added ------------------------------------------------------------------------------------->
 
             target_role = ROLE_MAPPING.get(role_name.lower(), "Gamma")
             role = security_manager.find_role(target_role)

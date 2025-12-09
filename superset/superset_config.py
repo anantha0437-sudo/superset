@@ -27,6 +27,7 @@ import sys
 from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
 from superset.security.security_manager_tc import TCSecurityManager
+
 logger = logging.getLogger()
 
 DATABASE_DIALECT = os.getenv("DATABASE_DIALECT")
@@ -113,7 +114,23 @@ CELERY_CONFIG = CeleryConfig
 
 
 
-FEATURE_FLAGS = {"ALERT_REPORTS": True}
+FEATURE_FLAGS = {"ALERT_REPORTS": True,"ENABLE_TEMPLATE_PROCESSING": True,}
+
+from flask_login import current_user
+
+def current_tc_user_id():
+    return getattr(current_user, "tc_user_id", None)
+
+
+
+JINJA_CONTEXT_ADDONS = {
+    "current_tc_user_id": current_tc_user_id,
+}
+
+
+
+
+
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = f"http://superset_app{os.environ.get('SUPERSET_APP_ROOT', '/')}/"  # When using docker compose baseurl should be http://superset_nginx{ENV{BASEPATH}}/  # noqa: E501
 # The base URL for the email report hyperlinks.
@@ -140,10 +157,10 @@ if os.getenv("CYPRESS_CONFIG") == "true":
 
     sys.path.pop(0)
 
-#
-# Optionally import superset_config_docker.py (which will have been included on
-# the PYTHONPATH) in order to allow for local settings to be overridden
-#
+
+
+
+
 try:
     import superset_config_docker
     from superset_config_docker import *  # noqa: F403

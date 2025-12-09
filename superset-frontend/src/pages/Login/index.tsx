@@ -143,16 +143,17 @@ export default function Login() {
       setTcAuthLoading(true);
 
       const loggedInUser=JSON.parse(localStorage.getItem("userModel") || "{}");
+      const userAuthToken=localStorage.getItem("CurrentUser");
 
       
     const payload = {
-    token: loggedInUser?.token || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJmOTdlNjUwYy0zYTFkLTRmNWQtOWRhNi0yMjAzNjMzODk2OTIiLCJDb21wYW55IjoiNTk2NjIyNWUtYmY0Ni00YjZlLTlmNzQtZDQwODY1ZDBkMTc0IiwibmJmIjoxNzY0MjI3ODEwLCJleHAiOjIxOTYyMjc4MTAsImlhdCI6MTc2NDIyNzgxMH0.j0Vx0h0n0fNuxPqQGzDoJUT4x9lEbtZ4NrWhhpBFEFg",
+    token: userAuthToken || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJmOTdlNjUwYy0zYTFkLTRmNWQtOWRhNi0yMjAzNjMzODk2OTIiLCJDb21wYW55IjoiNTk2NjIyNWUtYmY0Ni00YjZlLTlmNzQtZDQwODY1ZDBkMTc0IiwibmJmIjoxNzY0MjI3ODEwLCJleHAiOjIxOTYyMjc4MTAsImlhdCI6MTc2NDIyNzgxMH0.j0Vx0h0n0fNuxPqQGzDoJUT4x9lEbtZ4NrWhhpBFEFg",
     firstName: loggedInUser?.firstName || "John",
     lastName: loggedInUser?.surName || "Doe",        
-    userName: loggedInUser?.userName || "john.doe",
-    userEmail: loggedInUser?.userEmail || "john.doe@example.com",
-    tcUserId: loggedInUser?.userId || "9999",         
-    tcCompanyId: loggedInUser?.companyId || "12345",  
+    userName: loggedInUser?.userName || "hkerklhfdsgf",
+    userEmail: loggedInUser?.userEmail || "john.doefffgg@example.com",
+    tcUserId: loggedInUser?.userId || "F97E650C-3A1D-4F5D-9DA6-220363389692",         
+    tcCompanyId: loggedInUser?.companyId || "5966225E-BF46-4B6E-9F74-D40865D0D174",  
     role: loggedInUser?.roleName || "Super Admin",       
     origin: window.location.origin,                   
   };

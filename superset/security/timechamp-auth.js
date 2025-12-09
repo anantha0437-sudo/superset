@@ -1,10 +1,15 @@
 async function timechampLogout() {
   const token = localStorage.getItem("CurrentUser");
-  const origin = "https://btrak4350-development.snovasys.com";
-  const url = `${origin}/backend/api/LoginApi/SignOutAudit`;
+  const origin = window.location.origin;
+  
+  // if(origin.includes("localhost")){
+  //   origin = "https://btrak4350-development.snovasys.com";
+  // }
+ 
+  const logoutUrl = `${origin}/backend/api/LoginApi/SignOutAudit`;
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(logoutUrl, {
       method: "GET",
       credentials: "include",
       headers: {
