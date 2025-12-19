@@ -1,5 +1,5 @@
 import logging
-from flask import render_template_string, Response,request
+from flask import render_template_string, Response,request,session,redirect,make_response,current_app
 from flask_login import logout_user
 from flask_appbuilder.security.views import AuthDBView
 from flask_appbuilder.baseviews import expose
@@ -42,15 +42,11 @@ class CustomLoginView(AuthDBView):
     @expose("/logout", methods=["GET"])
     def logout(self):
         logger.info("Custom TimeChamp /logout called")
-        logger.info("Calling Timechamp Logout api")
 
-        try:
-            logout_user()   
-            logger.info("FAB logout successful")
-        except Exception as e:
-            logger.error(f"FAB logout failed: {e}")
+        logout_user()
+        session.clear()
 
-        prefix=os.getenv("SUPERSET_APP_ROOT","/")
+        prefix = os.getenv("SUPERSET_APP_ROOT", "").rstrip("/")
 
         html_template = f"""
         <html lang="en">
@@ -59,21 +55,53 @@ class CustomLoginView(AuthDBView):
         </body>
         </html>
         """
-        return render_template_string(html_template)
 
+        resp = make_response(render_template_string(html_template))
 
-        
+        resp.delete_cookie(
+            current_app.config["SESSION_COOKIE_NAME"],
+
+            path=prefix or "/"
+        )
+
+        resp.headers["Cache-Control"] = "no-store"
+        resp.headers["Pragma"] = "no-cache"
+        resp.headers["Expires"] = "0"
+
+        return resp
     
+    @expose("/tc-entry",methods=["GET"])
+    @expose("/tc-entry/",methods=["GET"])
+    def tc_entry(self):
+        logger.info("tc entry api called")
+        try:
+            logout_user()
+            session.clear()
+            logger.info("Fab initial logout successfull")
+        except Exception as e:
+            logger.error("Fab initial logout failed")
+        
+        prefix = os.getenv("SUPERSET_APP_ROOT", "").rstrip("/")
+        resp = make_response(redirect(f"{prefix}/login"))
+
+        resp.delete_cookie(
+            current_app.config["SESSION_COOKIE_NAME"],
+
+            path=prefix or "/"
+        )
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+
 
 class TCSecurityManager(SupersetSecurityManager):
     user_model = CustomUser
     authdbview = CustomLoginView
 
     def find_user(self, username=None, email=None, tc_user_id=None):
-        session = self.get_session()
+        db_session = self.get_session()
 
         if tc_user_id:
-            user = session.query(self.user_model).filter_by(tc_user_id=tc_user_id).first()
+            user = db_session.query(self.user_model).filter_by(tc_user_id=tc_user_id).first()
             if user:
                 return user
 
@@ -101,9 +129,9 @@ class TCSecurityManager(SupersetSecurityManager):
 
         user.roles = [role]
 
-        session = self.get_session()
-        session.add(user)
-        session.commit()
+        db_session = self.get_session()
+        db_session.add(user)
+        db_session.commit()
 
         return user
     

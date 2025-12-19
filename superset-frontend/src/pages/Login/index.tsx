@@ -142,8 +142,9 @@ export default function Login() {
     if (true) {
       setTcAuthLoading(true);
 
-      const loggedInUser=JSON.parse(localStorage.getItem("userModel") || "{}");
+      const loggedInUser=JSON.parse(localStorage.getItem("UserModel") || "{}");
       const userAuthToken=localStorage.getItem("CurrentUser");
+      const origin=localStorage.getItem("Origin");
 
       
     const payload = {
@@ -151,14 +152,12 @@ export default function Login() {
     firstName: loggedInUser?.firstName || "John",
     lastName: loggedInUser?.surName || "Doe",        
     userName: loggedInUser?.userName || "hkerklhfdsgf",
-    userEmail: loggedInUser?.userEmail || "john.doefffgg@example.com",
-    tcUserId: loggedInUser?.userId || "F97E650C-3A1D-4F5D-9DA6-220363389692",         
+    userEmail: loggedInUser?.userEmail == null ? loggedInUser?.userName : loggedInUser?.userEmail,
+    tcUserId: loggedInUser?.id || "F97E650C-3A1D-4F5D-9DA6-220363389692",         
     tcCompanyId: loggedInUser?.companyId || "5966225E-BF46-4B6E-9F74-D40865D0D174",  
     role: loggedInUser?.roleName || "Super Admin",       
-    origin: window.location.origin,                   
+    origin: origin || window.location.origin,                   
   };
-
-
 
       SupersetClient.post({
         endpoint: "/api/v1/security/local-login/",

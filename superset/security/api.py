@@ -218,6 +218,7 @@ class SecurityRestApi(BaseSupersetApi):
             username = data.get("userName")
             email = data.get("userEmail")
             role_name = data.get("role")
+            origin=data.get("origin")
 
             # Validate base required fields
             missing_fields = [
@@ -238,7 +239,7 @@ class SecurityRestApi(BaseSupersetApi):
             # ---------------------------------------------------------
             # Call TimeChamp API for validation
             # ---------------------------------------------------------
-            api_url = request.host_url.rstrip("/") + "/Superset/Supersetapi/validateSupersetAccess"
+            api_url = origin + "/backend/Superset/Supersetapi/validateSupersetAccess"
             # api_url = f"https://btrak4350-development.snovasys.com/backend/superset/supersetapi/validateSupersetAccess"
 
 

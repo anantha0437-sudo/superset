@@ -84,6 +84,11 @@ CUSTOM_SECURITY_MANAGER = TCSecurityManager
 SUPERSET_APP_ROOT="/dataanalytics"
 APP_NAME = "Data Analytics | Time Champ"
 HTML_TITLE = "Data Analytics | Time Champ"
+PREFERRED_URL_SCHEME="https"
+SESSION_COOKIE_SECURE=True
+AUTH_REMEMBER_ME = False
+REMEMBER_COOKIE_DURATION = 0
+
 
 
 
@@ -128,9 +133,6 @@ JINJA_CONTEXT_ADDONS = {
 }
 
 
-
-
-
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = f"http://superset_app{os.environ.get('SUPERSET_APP_ROOT', '/')}/"  # When using docker compose baseurl should be http://superset_nginx{ENV{BASEPATH}}/  # noqa: E501
 # The base URL for the email report hyperlinks.
@@ -138,6 +140,7 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = (
     f"http://localhost:8888/{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
 )
 SQLLAB_CTAS_NO_LIMIT = True
+ENABLE_PROXY_FIX=True
 
 
 
