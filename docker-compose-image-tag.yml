@@ -45,18 +45,18 @@ services:
     volumes:
       - redis:/data
 
-  db:
-    env_file:
-      - path: docker/.env # default
-        required: true
-      - path: docker/.env-local # optional override
-        required: false
-    image: postgres:16
-    container_name: superset_db
-    restart: unless-stopped
-    volumes:
-      - db_home:/var/lib/postgresql/data
-      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  # db:
+  #   env_file:
+  #     - path: docker/.env # default
+  #       required: true
+  #     - path: docker/.env-local # optional override
+  #       required: false
+  #   image: postgres:16
+  #   container_name: superset_db
+  #   restart: unless-stopped
+  #   volumes:
+  #     - db_home:/var/lib/postgresql/data
+  #     - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
   superset:
     env_file:
@@ -86,8 +86,8 @@ services:
       - path: docker/.env-local # optional override
         required: false
     depends_on:
-      db:
-        condition: service_started
+      # db:
+      #   condition: service_started
       redis:
         condition: service_started
     user: "root"
@@ -138,7 +138,7 @@ services:
 volumes:
   superset_home:
     external: false
-  db_home:
-    external: false
+  # db_home:
+  #   external: false
   redis:
     external: false

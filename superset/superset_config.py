@@ -31,6 +31,7 @@ from superset.security.security_manager_tc import TCSecurityManager
 logger = logging.getLogger()
 
 DATABASE_DIALECT = os.getenv("DATABASE_DIALECT")
+DATABASE_DRIVER = os.getenv("DATABASE_DRIVER", "pymysql")
 DATABASE_USER = os.getenv("DATABASE_USER")
 DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
 DATABASE_HOST = os.getenv("DATABASE_HOST")
@@ -44,12 +45,17 @@ EXAMPLES_PORT = os.getenv("EXAMPLES_PORT")
 EXAMPLES_DB = os.getenv("EXAMPLES_DB")
 
 # The SQLAlchemy connection string.
+
+
 SQLALCHEMY_DATABASE_URI = (
-    f"{DATABASE_DIALECT}://"
+    f"{DATABASE_DIALECT}+{DATABASE_DRIVER}://"
     f"{DATABASE_USER}:{DATABASE_PASSWORD}@"
     f"{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_DB}"
+    "?charset=utf8mb4"
 )
-SQLALCHEMY_DATABASE_URI = "sqlite:////app/superset_home/superset.db"
+# SQLALCHEMY_DATABASE_URI = "sqlite:////app/superset_home/superset.db"
+
+
 
 # Use environment variable if set, otherwise construct from components
 # This MUST take precedence over any other configuration
@@ -88,6 +94,8 @@ PREFERRED_URL_SCHEME="https"
 SESSION_COOKIE_SECURE=True
 AUTH_REMEMBER_ME = False
 REMEMBER_COOKIE_DURATION = 0
+
+
 
 
 

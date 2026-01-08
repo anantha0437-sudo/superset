@@ -281,20 +281,20 @@ class SecurityRestApi(BaseSupersetApi):
             # Map TimeChamp role → Superset role
             # ---------------------------------------------------------
             ROLE_MAPPING = {
-                "admin": "Admin",
-                "super admin": "Admin",
-                "manager": "Alpha",
-                "employee": "Gamma",
+                "support": "Admin"
+                # "super admin": "Admin",
+                # "manager": "Alpha",
+                # "employee": "Gamma",
             }
 
             #dynamic role mapping has to be added ------------------------------------------------------------------------------------->
 
-            target_role = ROLE_MAPPING.get(role_name.lower(), "Gamma")
+            target_role = ROLE_MAPPING.get(role_name.lower(), "Alpha")
             role = security_manager.find_role(target_role)
 
             if not role:
-                logger.warning(f"Role {target_role} not found. Using Gamma.")
-                role = security_manager.find_role("Gamma")
+                logger.warning(f"Role {target_role} not found. Using Alpha.")
+                role = security_manager.find_role("Alpha")
 
             # ---------------------------------------------------------
             # Create or update user
