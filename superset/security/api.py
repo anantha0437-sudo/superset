@@ -289,11 +289,11 @@ class SecurityRestApi(BaseSupersetApi):
 
             #dynamic role mapping has to be added ------------------------------------------------------------------------------------->
 
-            target_role = ROLE_MAPPING.get(role_name.lower(), "Alpha")
+            target_role = ROLE_MAPPING.get(role_name.lower(), "TCUser")
             role = security_manager.find_role(target_role)
 
             if not role:
-                logger.warning(f"Role {target_role} not found. Using Alpha.")
+                logger.info(f"Role {target_role} not found. Using Alpha.")
                 role = security_manager.find_role("Alpha")
 
             # ---------------------------------------------------------
@@ -505,7 +505,6 @@ class RoleRestAPI(BaseSupersetApi):
         except Exception as e:
             return self.response_500(message=str(e))
         
-       # ✅ Custom external login endpoint (TimeChamp integration)
     
 
 class UserRegistrationsRestAPI(BaseSupersetModelRestApi):

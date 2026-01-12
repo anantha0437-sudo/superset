@@ -476,14 +476,14 @@ const RightMenu = ({
 
         const userItems: MenuItem[] = [];
         if (navbarRight.user_info_url) {
-          userItems.push({
-            key: 'info',
-            label: (
-              <Typography.Link href={ensureAppRoot(navbarRight.user_info_url)}>
-                {t('Info')}
-              </Typography.Link>
-            ),
-          });
+          // userItems.push({
+          //   key: 'info',
+          //   label: (
+          //     <Typography.Link href={ensureAppRoot(navbarRight.user_info_url)}>
+          //       {t('Info')}
+          //     </Typography.Link>
+          //   ),
+          // });
         }
         userItems.push({
           key: 'logout',
@@ -540,7 +540,7 @@ const RightMenu = ({
             },
           ],
         };
-        items.push(aboutItem);
+        // items.push(aboutItem);
       }
       return items;
     };

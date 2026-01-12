@@ -134,28 +134,15 @@ class TCSecurityManager(SupersetSecurityManager):
         db_session.commit()
 
         return user
-    
+
     def get_session(self):
         return db.session
-    
 
-    def sync_role_definitions(self):
-        super().sync_role_definitions()
-
-        alpha = self.find_role("Alpha")
-        if not alpha:
-            return
-
-        manage_pv = self.find_permission_view_menu("can_access", "Manage")
-
-        if manage_pv and manage_pv in alpha.permissions:
-            self.remove_permission_role(alpha, manage_pv)
-            logger.info("Removed Manage menu access from Alpha role")
-
+   
 
     def __init__(self, appbuilder):
         super().__init__(appbuilder)
-        logging.info("Custom Security Manager Initialized with FAB views")
+        logger.info("Custom Security Manager Initialized with FAB views")
 
 
        

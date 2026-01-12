@@ -47,13 +47,17 @@ EXAMPLES_DB = os.getenv("EXAMPLES_DB")
 # The SQLAlchemy connection string.
 
 
-SQLALCHEMY_DATABASE_URI = (
-    f"{DATABASE_DIALECT}+{DATABASE_DRIVER}://"
-    f"{DATABASE_USER}:{DATABASE_PASSWORD}@"
-    f"{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_DB}"
-    "?charset=utf8mb4"
-)
+# SQLALCHEMY_DATABASE_URI = (
+#     f"{DATABASE_DIALECT}+{DATABASE_DRIVER}://"
+#     f"{DATABASE_USER}:{DATABASE_PASSWORD}@"
+#     f"{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_DB}"
+#     "?charset=utf8mb4"
+# )
 # SQLALCHEMY_DATABASE_URI = "sqlite:////app/superset_home/superset.db"
+
+
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:Test123!@host.docker.internal:3306/timechamp_analytics?charset=utf8mb4"
+
 
 
 
